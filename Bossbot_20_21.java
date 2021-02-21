@@ -48,29 +48,29 @@ public class Bossbot_20_21 extends LinearOpMode {
     private DcMotor motor2;
     private DcMotor motor3;
     private DcMotor motor4;
-    
+
     private DcMotor pivot;
     private DcMotor launch;
     private DcMotor ramp;
-    
-    
+
+
     private CRServo intake;
     private Servo lock;
     private CRServo ramp_rings1;
     private CRServo ramp_rings2;
-    
-    
+
+
     private double p1;
     private double p2;
     private double p3;
     private double p4;
-    
-    
+
+
     private double duration;
     private boolean status;
     private boolean old_toggle;
     private boolean new_toggle;
-    
+
 
     @Override
     public void runOpMode() {
@@ -78,39 +78,39 @@ public class Bossbot_20_21 extends LinearOpMode {
         motor2 = hardwareMap.get(DcMotor.class, "motor2");
         motor3 = hardwareMap.get(DcMotor.class, "motor3");
         motor4 = hardwareMap.get(DcMotor.class, "motor4");
-        
+
         pivot = hardwareMap.get(DcMotor.class, "pivot");
         launch = hardwareMap.get(DcMotor.class, "launch");
         ramp = hardwareMap.get(DcMotor.class, "ramp");
-        
-        
+
+
         intake = hardwareMap.get(CRServo.class, "intake");
         lock = hardwareMap.get(Servo.class, "lock");
         ramp_rings1 = hardwareMap.get(CRServo.class, "ramp_rings1");
         ramp_rings2 = hardwareMap.get(CRServo.class, "ramp_rings2");
-        
+
         motor1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor3.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor4.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        
+
         launch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         ramp.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        ramp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ramp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         pivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        
-        
-        
-        
+
+
+
+
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
-            
+
             // mecanum drive
             drive(gamepad1.right_trigger - gamepad1.left_trigger, gamepad1.left_stick_x, gamepad1.right_stick_x);
-            
+
             // launcher
             launcher();
             /*if (gamepad1.x) {
@@ -121,81 +121,89 @@ public class Bossbot_20_21 extends LinearOpMode {
                 intake.setPower(0);
             }
             */
-            
-            
-            
-            //pivot 
-            if (gamepad1.dpad_up && pivot.getCurrentPosition() > 255) {
+
+
+
+            //pivot
+            if (gamepad2.left_stick_y < -0.5 && pivot.getCurrentPosition() > 255) {
                 pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 pivot.setPower(-0.25);
-            } else if (gamepad1.dpad_down) {
+            } else if (gamepad2.left_stick_y > 0.5) {
                 pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 pivot.setPower(0.25);
             } else {
                 pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                if (pivot.getCurrentPosition() < 255) { //start the pivot over the bot so position is zeroed correctly
-                    pivot.setPower(0.1);
-                } else if (pivot.getCurrentPosition() > 550) {
-                    pivot.setPower(-0.2);
-                } else {
-                    pivot.setPower(-0.1);
-                }
+                pivot.setPower(-0.1);
                 //pivot.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
-            
-            
+
+
             // lock
-            if (gamepad1.a) {
+            if (gamepad2.a) {
                 lock.setPosition(1);
             } else {
                 lock.setPosition(0);
             }
-            
+
             telemetry.addData("pos", ramp.getCurrentPosition());
             telemetry.update();
-            
-            
+
+
             // launch motor
-            if (gamepad2.a) {
-                launch.setPower(0.7);
+            if (gamepad2.x) {
+                launch.setPower(0.8);
             } else {
                 launch.setPower(0);
             }
-            
+
             // ramp control
             if (gamepad2.dpad_up) {
-                ramp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                ramp.setPower(0.25);
+                ramp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                ramp.setPower(0.6);
             } else if (gamepad2.dpad_down) {
-                ramp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                ramp.setPower(0.25);
+                ramp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                ramp.setPower(-0.4);
             } else {
                 ramp.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                ramp.setPower(0.2);
+                ramp.setPower(0.1);
             }
-            
-            
-            
+
+
+
             // intake always remains on
             intake.setPower(-1);
-            
+
+
+
+            // ramp rotors
+            if (gamepad2.left_bumper) {
+                ramp_rings2.setPower(gamepad2.left_trigger);
+            } else {
+                ramp_rings2.setPower(-gamepad2.left_trigger);
+            }
+            if (gamepad2.right_bumper) {
+                ramp_rings1.setPower(gamepad2.right_trigger);
+            } else {
+                ramp_rings1.setPower(-gamepad2.right_trigger);
+            }
+
         }
     }
-    
+
     private void launcher() {
         old_toggle = new_toggle;
         new_toggle = gamepad1.x;
-        
+
         if (old_toggle && !new_toggle) {
             status = !status;
             duration = getRuntime();
         }
-        
+
         /*if (getRuntime() - duration > 5 && status) {
             status = false;
         }
         */
-        
+
         if (!status) {
             if (ramp.getCurrentPosition() > 50) {
                 ramp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -209,13 +217,14 @@ public class Bossbot_20_21 extends LinearOpMode {
                 //ramp.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             }
             launch.setPower(0);
-            if (getRuntime() - duration > 3) {
-                intake.setPower(-1);
-                
-            } else {
-                intake.setPower(0);
-                
-            }
+            //if (getRuntime() - duration > 3) {
+            //    intake.setPower(-1);
+
+            //} else {
+            //    intake.setPower(0);
+
+            //}
+
         } else {
             if (ramp.getCurrentPosition() < 410) {
                 ramp.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -227,7 +236,7 @@ public class Bossbot_20_21 extends LinearOpMode {
             }
             launch.setPower(1);
             intake.setPower(0);
-            
+
         }
         if (gamepad2.left_bumper) {
             ramp_rings2.setPower(gamepad2.left_trigger);
@@ -240,8 +249,8 @@ public class Bossbot_20_21 extends LinearOpMode {
             ramp_rings1.setPower(-gamepad2.right_trigger);
         }
     }
-    
-    
+
+
     private void drive(double fd, double yaw, double drift) {
         if (Math.abs(yaw)<0.15) {
             yaw = 0;
@@ -253,7 +262,7 @@ public class Bossbot_20_21 extends LinearOpMode {
         p2 = fd - yaw - drift;
         p3 = fd - yaw + drift;
         p4 = fd + yaw - drift;
-        
+
         if (p1 > 1) {
             p1 = 1;
         }
