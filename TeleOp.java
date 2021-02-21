@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 
 @TeleOp
-public class Bossbot_20_21 extends LinearOpMode {
+public class TeleOp extends LinearOpMode {
     // mecanum drive train
     private Mecanum mecanum;
 
