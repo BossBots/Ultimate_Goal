@@ -44,7 +44,7 @@ public class Auton extends LinearOpMode {
     public void runOpMode() {
 
         // mecanum drive train
-        mecanum = new Mecanum();
+        mecanum = new Mecanum(hardwareMap.get(BNO055IMU.class, "imu"), hardwareMap.get(DcMotor.class, "motor1"), hardwareMap.get(DcMotor.class, "motor2"), hardwareMap.get(DcMotor.class, "motor3"), hardwareMap.get(DcMotor.class, "motor4"));
         mecanum.constantSpeed();
 
         // wobble goal system
@@ -64,7 +64,7 @@ public class Auton extends LinearOpMode {
         ramp_rings2 = hardwareMap.get(CRServo.class, "ramp_rings2");
 
         // image recognition system
-        ir = new ImageRecognition();
+        ir = new ImageRecognition(hardwareMap.appContext.getResources().getIdentifier("tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName()));
         ir.initializeSystem();
 
 
@@ -114,8 +114,8 @@ public class Auton extends LinearOpMode {
             // move to ring sample
             mecanum.drift(-0.5, 600);
             ramp.setPower(0.1);
-            mecanum.forward(0.5, 0, 0.5);
-            brake(500);
+            mecanum.forward(0.5, 0, 500);
+            mecanum.brake(500);
 
             // Object Detection
             numRings = ir.getRecognition();
@@ -123,17 +123,17 @@ public class Auton extends LinearOpMode {
             // place the 1st wobble goal
             mecanum.drift(0.5, 500);
             if (numRings.equals("Quad")) {
-                mecanum.forward(0.75, 0, 2);
+                mecanum.forward(0.75, 0, 2000);
                 mecanum.drift(-0.5, 1000);
                 lock.setPosition(1);
                 mecanum.drift(0.5, 1000);
             } else if (numRings.equals("Single")) {
-                mecanum.forward(0.75, 0, 1.75);
+                mecanum.forward(0.75, 0, 1750);
                 mecanum.drift(-0.5, 500);
                 lock.setPosition(1);
                 mecanum.drift(0.5, 500);
             } else {
-                mecanum.forward(0.75, 0, 1.5);
+                mecanum.forward(0.75, 0, 1500);
                 mecanum.drift(-0.5, 1000);
                 lock.setPosition(1);
                 mecanum.drift(0.5, 1000);

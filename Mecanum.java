@@ -24,7 +24,7 @@ public class Mecanum {
     private com.qualcomm.hardware.bosch.BNO055IMU.Parameters imuParameters;
 
     // motion variables
-    private double startTime;
+    private long startTime;
     private double currentAngle;
 
     // DcMotor objects
@@ -40,12 +40,12 @@ public class Mecanum {
     private double p4;
 
     // constructor
-    public Mecanum() {
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        motor1 = hardwareMap.get(DcMotor.class, "motor1");
-        motor2 = hardwareMap.get(DcMotor.class, "motor2");
-        motor3 = hardwareMap.get(DcMotor.class, "motor3");
-        motor4 = hardwareMap.get(DcMotor.class, "motor4");
+    public Mecanum(BNO055IMU i, DcMotor m1, DcMotor m2, DcMotor m3, DcMotor m4) {
+        imu = i;
+        motor1 = m1;
+        motor2 = m2;
+        motor3 = m3;
+        motor4 = m4;
 
         // Create new IMU Parameters object.
         imuParameters = new BNO055IMU.Parameters();
@@ -81,9 +81,9 @@ public class Mecanum {
     }
 
     // forward function for specified power, angle, and interval (reverse is negative power)
-    public void forward(double power, double angle, double interval) {
-        startTime = getRuntime();
-        while (getRuntime() - start_time < interval) {
+    public void forward(double power, double angle, long interval) {
+        startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < interval) {
           currentAngle = getHeading();
           if (currentAngle - angle > 5) {
             drive(power, power/2, 0);
@@ -93,8 +93,10 @@ public class Mecanum {
             drive(power, 0, 0);
           }
         }
-        drive(-power/4,0,0);
-        sleep(250);
+        startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < 250) {
+            drive(-power/4,0,0);
+        }
         brake(250);
     }
 
@@ -117,10 +119,14 @@ public class Mecanum {
 
     // drift function for specified power and duration (right is + power, left is - power)
     public void drift(double power, long dur) {
-        drive(0, 0, power);
-        sleep(dur);
-        drive(0, 0, -power);
-        sleep(250);
+        startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < dur) {
+            drive(0, 0, power);
+        }
+        startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < 250) {
+            drive(0, 0, -power);
+        }
         brake(250);
     }
 
@@ -131,7 +137,10 @@ public class Mecanum {
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor3.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor4.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        sleep(dur);
+        startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < dur) {
+            continue;
+        }
     }
 
     // master drive function for specified forward, yaw, and drift power values

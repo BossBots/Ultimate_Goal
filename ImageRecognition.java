@@ -16,6 +16,7 @@ public class ImageRecognition {
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
     private static final String VUFORIA_KEY = "ASXuYar/////AAABmXFF9U0Sqkf4nhGpOxAwL4hjOruKN+pzxoY06iPyjRCJzC2VJLEcTeWGlru0xqBeYD1/4Q/Re8WeD61/uoVn4xHD2U4ZJcxUOgBIJ9tpv181fPxonQEECTo6DAbx6VaADyWN5deZ5fkOVeQD7He5kCgL7DA5VbYDsXCNoqF4Ifnj+pyVUlYZeuiIvpHUDGXfa6E5a3jJk4p6ksFK0BCObGsRtKfFsCKZvjz8shWT0ifp4majfLUu3J8xLNmEM6pLy9bsDWgANt+Ao+zrFDJ1jUGG92oI1nllBYQCW/PC3to0UeGPIeUWpTSFBZFp8GSAf633CgKcxSftde0rgBxMlrB2YIWeM6bPXPwbqSpvS/yT";
+    private int tfodMonitorViewId;
 
 
     /**
@@ -35,9 +36,10 @@ public class ImageRecognition {
     private String bestRecognition;
 
     // constructor
-    public ImageRecognition() {
+    public ImageRecognition(int num) {
         maxConfidence = 0;
         bestRecognition = "Zero";
+        tfodMonitorViewId = num;
     }
 
     public void initializeSystem() {
@@ -116,8 +118,6 @@ public class ImageRecognition {
 
      // Initialize the TensorFlow Object Detection engine.
     private void initTfod() {
-        int tfodMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
-            "tfodMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         TFObjectDetector.Parameters tfodParameters = new TFObjectDetector.Parameters(tfodMonitorViewId);
         tfodParameters.minResultConfidence = 0.8f;
         tfod = ClassFactory.getInstance().createTFObjectDetector(tfodParameters, vuforia);

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 
 
 @TeleOp
-public class TeleOp extends LinearOpMode {
+public class DriverControlled extends LinearOpMode {
     // mecanum drive train
     private Mecanum mecanum;
 
@@ -34,7 +34,7 @@ public class TeleOp extends LinearOpMode {
     @Override
     public void runOpMode() {
         // mecanum initialization
-        mecanum = new Mecanum();
+        mecanum = new Mecanum(hardwareMap.get(BNO055IMU.class, "imu"), hardwareMap.get(DcMotor.class, "motor1"), hardwareMap.get(DcMotor.class, "motor2"), hardwareMap.get(DcMotor.class, "motor3"), hardwareMap.get(DcMotor.class, "motor4"));
         mecanum.constantPower();
 
         // wobble goal manipulation system initialization
