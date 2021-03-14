@@ -77,71 +77,106 @@ public class Auton extends LinearOpMode {
             ramp.setPower(0.15);
             lock.setPosition(0);
             launch.setPower(1);
+            intake.setPower(-1);
 
             // wobble goal bending
-            while (pivot.getCurrentPosition() < 150) {
-                pivot.setPower(0.5);
+            while (pivot.getCurrentPosition() < 100) {
+                pivot.setPower(0.25);
             }
-            while (pivot.getCurrentPosition() > 350) {
+            while (pivot.getCurrentPosition() > 300) {
                 pivot.setPower(-0.25);
             }
             pivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             pivot.setPower(-0.1);
 
-            sleep(500);
+            sleep(1000);
 
             // launch the rings!
-            ramp_rings1.setPower(-0.5);
-            ramp_rings2.setPower(-0.5);
-            sleep(1000);
+            ramp_rings1.setPower(-0.75);
+            ramp_rings2.setPower(-0.1);
+            sleep(500);
             ramp_rings1.setPower(0);
             ramp_rings2.setPower(0);
-            sleep(500);
-            ramp_rings1.setPower(-0.5);
-            ramp_rings2.setPower(-0.5);
-            sleep(1000);
+            mecanum.drift(0.25, 0, 500);
+            ramp_rings1.setPower(-0.75);
+            ramp_rings2.setPower(-0.2);
+            sleep(1500);
             ramp_rings1.setPower(0);
             ramp_rings2.setPower(0);
-            sleep(500);
-            ramp_rings1.setPower(-0.5);
-            ramp_rings2.setPower(-0.5);
-            sleep(1000);
+            mecanum.drift(0.25, 0, 500);
+            ramp_rings1.setPower(-0.75);
+            ramp_rings2.setPower(-0.25);
+            sleep(1500);
             ramp_rings1.setPower(0);
             ramp_rings2.setPower(0);
             launch.setPower(0);
             ramp.setPower(-0.2);
+            mecanum.drift(-0.25, 0, 1000);
+            
+            // lift pivot
+            pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            pivot.setPower(-0.25);
+            sleep(750);
+            pivot.setPower(0);
 
             // move to ring sample
-            mecanum.drift(-0.5, 600);
+            mecanum.drift(-0.25, 0, 750);
             ramp.setPower(0.1);
-            mecanum.forward(0.5, 0, 500);
+            mecanum.forward(0.4, 0, 750);
             mecanum.brake(500);
 
             // Object Detection
             numRings = ir.getRecognition();
+            
+            telemetry.addData("rings", numRings);
+            telemetry.update();
+            sleep(1000);
 
             // place the 1st wobble goal
-            mecanum.drift(0.5, 500);
+            mecanum.drift(0.5, 0, 500);
             if (numRings.equals("Quad")) {
-                mecanum.forward(0.75, 0, 2000);
-                mecanum.drift(-0.5, 1000);
+                mecanum.forward(0.6, 0, 2000);
+                mecanum.drift(-0.5, 0, 750);
+                while (pivot.getCurrentPosition() < 150) {
+                    pivot.setPower(0.25);
+                }
+                pivot.setPower(0);
                 lock.setPosition(1);
-                mecanum.drift(0.5, 1000);
+                mecanum.drift(0.5, 0, 750);
+                mecanum.forward(-0.5, 0, 1250);
             } else if (numRings.equals("Single")) {
-                mecanum.forward(0.75, 0, 1750);
-                mecanum.drift(-0.5, 500);
+                mecanum.forward(0.6, 0, 1750);
+                //mecanum.drift(-0.5, 0, 350);
+                while (pivot.getCurrentPosition() < 150) {
+                    pivot.setPower(0.25);
+                }
+                pivot.setPower(0);
                 lock.setPosition(1);
-                mecanum.drift(0.5, 500);
+                mecanum.drift(0.5, 0, 250);
+                mecanum.forward(-0.5, 0, 750);
             } else {
-                mecanum.forward(0.75, 0, 1500);
-                mecanum.drift(-0.5, 1000);
+                mecanum.forward(0.6, 0, 1250);
+                mecanum.drift(-0.5, 0, 750);
+                while (pivot.getCurrentPosition() < 150) {
+                    pivot.setPower(0.25);
+                }
+                pivot.setPower(0);
                 lock.setPosition(1);
-                mecanum.drift(0.5, 1000);
+                mecanum.drift(0.5, 0, 1000);
             }
+            ramp.setPower(-0.4);
             pivot.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             pivot.setPower(-0.4);
-            sleep(1500);
+            sleep(2000);
             pivot.setPower(0);
+            ramp.setPower(0);
+            
+            telemetry.addData("rings", numRings);
+            telemetry.update();
+            sleep(3000);
+            
+            ir.close();
+            mecanum.reset();
         }
     }
 }

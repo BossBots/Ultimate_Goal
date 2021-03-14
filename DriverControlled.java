@@ -61,7 +61,11 @@ public class DriverControlled extends LinearOpMode {
 
             // mecanum drive
             mecanum.drive(gamepad1.right_trigger - gamepad1.left_trigger, gamepad1.left_stick_x, gamepad1.right_stick_x);
-
+            
+            
+            // telemetry
+            telemetry.addData("heading", mecanum.getHeading());
+            telemetry.update();
 
             //pivot
             if (gamepad2.left_stick_y < -0.5 && pivot.getCurrentPosition() > 255) {
@@ -81,22 +85,30 @@ public class DriverControlled extends LinearOpMode {
             } else {
                 lock.setPosition(0);
             }
+            
+            
+            if (gamepad1.x) {
+                mecanum.reset();
+            }
 
 
 
 
             // launch motor
             if (gamepad2.x) {
-                launch.setPower(0.8);
+                launch.setPower(0.95);
+            } else if (gamepad2.y) {
+                launch.setPower(0.65);
             } else {
                 launch.setPower(0);
             }
+            //launch.setPower(Math.abs(gamepad2.right_stick_y));
 
             // ramp control
             if (gamepad2.dpad_up) {
                 ramp.setPower(0.6);
             } else if (gamepad2.dpad_down) {
-                ramp.setPower(-0.4);
+                ramp.setPower(-0.25);
             } else {
                 ramp.setPower(0.1);
             }

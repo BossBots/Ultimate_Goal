@@ -76,7 +76,7 @@ public class Mecanum {
     }
 
     // helper function to return z-axis orientation as measured by IMU
-    private double getHeading() {
+    public double getHeading() {
       return imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
@@ -116,16 +116,33 @@ public class Mecanum {
         }
         brake(250);
     }
+    
+    
+    public void reset() {
+        currentAngle = getHeading();
+        if (currentAngle < 0) {
+            yaw(-0.25, 0);
+        } else {
+            yaw(0.25, 0);
+        }
+    }
 
     // drift function for specified power and duration (right is + power, left is - power)
-    public void drift(double power, long dur) {
+    public void drift(double power, double angle, long interval) {
         startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < dur) {
+        while (System.currentTimeMillis() - startTime < interval) {
+          currentAngle = getHeading();
+          if (currentAngle - angle > 5) {
+            drive(0, power/2, power);
+        } else if (currentAngle-angle < -5) {
+            drive(0, -power/2, power);
+          } else {
             drive(0, 0, power);
+          }
         }
         startTime = System.currentTimeMillis();
         while (System.currentTimeMillis() - startTime < 250) {
-            drive(0, 0, -power);
+            drive(0,0,-power/4);
         }
         brake(250);
     }
